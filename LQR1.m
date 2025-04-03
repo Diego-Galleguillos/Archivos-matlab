@@ -17,20 +17,20 @@ C = [1 0 0];  % Observamos solo la glucosa
 D = 0;
 
 % Definimos la penalización del LQR
-Q = diag([11000, 1000, 1000]);  % Penaliza más la glucosa
-R = 1000;               % Penaliza la insulina exógena
+Q = diag([100, 1, 1]);  % Penaliza el error de las variables de estado
+R = 100;               % Penaliza la insulina exógena (variable manipulada)
 
 % Calculamos la ganancia LQR
 K = lqr(A, B, Q, R);
 
 % Simulación con dos condiciones iniciales
 tspan = [0 200];
-CI1 = [200; 1; 3];  % Estado inicial 1
-CI2 = [120; 0; 2];  % Estado inicial 2
+CI1 = [500; 0.1; 3];  % Estado inicial 1
+CI2 = [100; 0; 2];  % Estado inicial 2
 
-% Definimos el sistema en lazo cerrado
+
 Ac = A - B * K;
-Bc = zeros(size(B));  % Sin perturbaciones
+Bc = B; % Sin perturbaciones
 Cc = C;
 Dc = D;
 

@@ -11,7 +11,7 @@ function modelo_original()
 
 
     CI1 = [100; 0; 1.5];  % [G, X, I] 
-    CI2 = [200; 1; 3];    % [G, X, I] 
+    CI2 = [200; 0.1; 3];    % [G, X, I] 
 
     % Tiempo de simulación
     tspan = [0 200];
