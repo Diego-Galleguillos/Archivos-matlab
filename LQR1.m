@@ -5,10 +5,10 @@ GB = 100; IB = 1.5; VL = 120;
 p2 = 20e-3; p3 = 13e-6; p4 = 5/54;
 
 % Matrices del sistema linealizado
-A = [0  -GB   0   1;
+A = [0  -GB   0   0.0000000000001;
       0   -p2  p3  0;
       0    0  -p4  0;
-      0    0   0  1.1];
+      0    0   0  0.4];
 
 B =   [0   1;
         0  0;
@@ -26,9 +26,9 @@ R = 100;               % Penaliza la insulina exógena (variable manipulada)
 K = lqr(A, B, Q, R);
 
 % Simulación con dos condiciones iniciales
-tspan = [0 200];
+tspan = [0 100];
 CI1 = [500; 0.1; 3; 0];  % Estado inicial 1
-CI2 = [100; 0; 2; 1];  % Estado inicial 2
+CI2 = [100; 0; 2; 0.1];  % Estado inicial 2
 
 
 Ac = A - B * K;
@@ -36,7 +36,7 @@ Bc = B; % Sin perturbaciones
 Cc = C;
 Dc = D;
 
-sys_cl = ss(Ac, Bc, Cc, Dc);
+sys_cl = ss(A, Bc, Cc, Dc);
 
 % Simulación de la respuesta
 [t1, y1] = initial(sys_cl, CI1, tspan);
@@ -50,3 +50,15 @@ ylabel('Glucosa (mg/dL)');
 legend('Sin perturbacion', 'Con perturbacion');
 title('Respuesta del sistema en lazo cerrado con LQR');
 grid on;
+
+
+h1 = @(t) 0;  % Ingesta de glucosa (perturbación)
+h2 = @(t) 5 * (t > 100);
+
+i1 = @(t) p4*IB*VL * (t > 50);  % Infusión de insulina (variable manipulada)
+i2 = @(t)  p4*IB*VL *2 * (t > 50);
+
+
+
+u = [i1, h1*rand(1)]
+lsim(sys_cl,u,t, CI1)
