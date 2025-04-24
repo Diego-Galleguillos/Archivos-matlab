@@ -5,21 +5,19 @@ GB = 100; IB = 1.5; VL = 120;
 p2 = 20e-3; p3 = 13e-6; p4 = 5/54;
 
 % Matrices del sistema linealizado
-A = [0  -GB   0   0.0000000000001;
-      0   -p2  p3  0;
-      0    0  -p4  0;
-      0    0   0  0.4];
+A = [0  -GB   0;
+      0   -p2  p3;
+      0    0  -p4];
 
 B =   [0   1;
         0  0;
-        1/VL  0;
-        -0.01   0];
+        1/VL  0];
 
-C = [1 0 0 0];  % Observamos solo la glucosa
+C = [1 1 1];  % Observamos solo la glucosa
 D = 0;
 
 % Definimos la penalización del LQR
-Q = diag([100, 1, 1, 1]);  % Penaliza el error de las variables de estado
+Q = diag([100, 1, 1]);  % Penaliza el error de las variables de estado
 R = 100;               % Penaliza la insulina exógena (variable manipulada)
 
 % Calculamos la ganancia LQR
@@ -27,8 +25,8 @@ K = lqr(A, B, Q, R);
 
 % Simulación con dos condiciones iniciales
 tspan = [0 100];
-CI1 = [500; 0.1; 3; 0];  % Estado inicial 1
-CI2 = [100; 0; 2; 0.1];  % Estado inicial 2
+CI1 = [500; 0.1; 3];  % Estado inicial 1
+CI2 = [100; 0; 2];  % Estado inicial 2
 
 
 Ac = A - B * K;
@@ -57,15 +55,12 @@ grid on;
 [t2, y2, x2] = initial(sys_cl, CI2, tspan);
 
 % Calculamos las variables manipuladas
-u1 = -K * x1';
-u2 = -K * x2';
+u1 = K * x1';
+u2 = K * x2';
 
-% Filtrar datos dentro del intervalo [0, 100]
-idx1 = (t1 >= 0) & (t1 <= 100);
-idx2 = (t2 >= 0) & (t2 <= 100);
-
+% Graficamos las variables manipuladas
 figure;
-plot(t1(idx1), u1(1, idx1), 'b', t2(idx2), u2(1, idx2), 'r--', 'LineWidth', 1.5);
+plot(t1, u1(1,:), 'b', t2, u2(1,:), 'r--', 'LineWidth', 1.5);
 xlabel('Tiempo (min)');
 ylabel('Insulina exógena (U/min)');
 legend('Sin perturbacion', 'Con perturbacion');
